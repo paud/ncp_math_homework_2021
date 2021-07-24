@@ -15,8 +15,8 @@ if __name__=='__main__':
     scaled_data['Q3_体重（斤）'] = data['Q3_体重（斤）'] - data['Q3_体重（斤）'].mean()
     scaled_data['Q2_身高（厘米）'] = data['Q2_身高（厘米）'] - data['Q2_身高（厘米）'].mean()
 
-    training_set = scaled_data[scaled_data.index%2==1]
-    testing_set = scaled_data[scaled_data.index%2==0]
+    training_set = scaled_data[(scaled_data.index+1)%2==1]
+    testing_set = scaled_data[(scaled_data.index+1)%2==0]
 
     data = training_set[['Q3_体重（斤）','Q2_身高（厘米）']].values
     all_y_trues = training_set[['Q1_性别']].values
@@ -33,12 +33,16 @@ if __name__=='__main__':
         pred = network.feedforward(obseration)
         pred_values.append(pred)
         gender_pred = "女" if pred>=0.5 else "男"
-        print("%s | 实际性别:%s,预测性别:%s,%.3f" % (d['Q4_学号'], gender, gender_pred, pred))
+        print("%s | 实际性别:%s,%.3f,预测性别:%s" % (d['Q4_学号'], gender, pred, gender_pred))
 
     # Confusion Matrix
     sns.set()
     y_true = testing_set['Q1_性别'].values
     y_pred = np.array(pred_values)
-    cm = confusion_matrix(y_true, y_pred>0.05, labels=[0, 1])
+    cm = confusion_matrix(y_true, y_pred>0.5, labels=[0, 1])
     print(cm) 
+    i=cm[0][0]+cm[1][1]
+    l=len(testing_set)
+    rate=i/l
+    print("准确率：%f" % rate)
     sns.heatmap(cm, annot=True)
