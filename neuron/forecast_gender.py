@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix
 
 
 if __name__=='__main__':
-    data = pd.read_excel("data.xlsx")
+    data = pd.read_excel("d.xlsx")
     data = data[['Q1_性别', 'Q2_身高（厘米）','Q3_体重（斤）','Q4_学号']]
     scaled_data = data.copy()
     scaled_data['Q1_性别'] = (scaled_data['Q1_性别']=='女') * 1
@@ -33,7 +33,7 @@ if __name__=='__main__':
         pred = network.feedforward(obseration)
         pred_values.append(pred)
         gender_pred = "女" if pred>=0.5 else "男"
-        print("%s | 实际性别:%s,%.3f,预测性别:%s" % (d['Q4_学号'], gender, pred, gender_pred))
+        print("%s | 实际性别:%s,%.3f,预测性别:%s,%s" % (d['Q4_学号'], gender, pred, gender_pred,"正确" if gender==gender_pred else "错误"))
 
     # Confusion Matrix
     sns.set()
