@@ -33,7 +33,7 @@ if __name__=='__main__':
         pred = network.feedforward(obseration)
         pred_values.append(pred)
         gender_pred = "女" if pred>=0.5 else "男"
-        print("%s | 实际性别:%s,%.3f,预测性别:%s,%s" % (d['Q4_学号'], gender, pred, gender_pred,"正确" if gender==gender_pred else "错误"))
+        print("%s | 实际性别:%s,%.3f,预测性别:%s,%s" % (d['Q4_学号'], gender, pred, gender_pred,"" if gender==gender_pred else "xxxxxxxxxxxxxx错误！"))
 
     # Confusion Matrix
     sns.set()
