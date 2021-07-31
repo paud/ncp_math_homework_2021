@@ -34,17 +34,22 @@ def mse_loss(y_true, y_pred):
 class OurNeuralNetwork:
     def __init__(self):
         # 权重，Weights
-        self.w1 = np.random.normal()
-        self.w2 = np.random.normal()
-        self.w3 = np.random.normal()
-        self.w4 = np.random.normal()
-        self.w5 = np.random.normal()
-        self.w6 = np.random.normal()
+        self.L1N1w1 = 1#np.random.normal()
+        self.L1N1w2 = 1#np.random.normal()
+        self.L1N2w1 = 1#np.random.normal()
+        self.L1N2w2 = 1#np.random.normal()
+        self.L1N3w1 = 1#np.random.normal()
+
+        self.L2N1w1 = 1#np.random.normal()
+        self.L2N1w2 = 1#np.random.normal()
+        self.L2N1w3 = 1#np.random.normal()
 
         # 截距项，Biases
-        self.b1 = np.random.normal()
-        self.b2 = np.random.normal()
-        self.b3 = np.random.normal()
+        self.L1N1b = 1#np.random.normal()
+        self.L1N2b = 1#np.random.normal()
+        self.L1N3b = 1#np.random.normal()
+
+        self.L2N1b = 1#np.random.normal()
 
         # weights = np.array([0,1])
         # bias = 0
@@ -56,9 +61,10 @@ class OurNeuralNetwork:
 
     def feedforward(self, x):
         # x is a numpy array with 2 elements.
-        h1 = sigmoid(self.w1 * x[0] + self.w2 * x[1] + self.b1)
-        h2 = sigmoid(self.w3 * x[0] + self.w4 * x[1] + self.b2)
-        o1 = sigmoid(self.w5 * h1 + self.w6 * h2 + self.b3)
+        h1 = sigmoid(self.L1N1w1 * x[0] + self.L1N1w2 * x[1] + self.L1N1b)
+        h2 = sigmoid(self.L1N2w1 * x[0] + self.L1N2w2 * x[1] + self.L1N2b)
+        h3 = sigmoid(self.L1N3w1 * x[2] + self.L1N3b)
+        o1 = sigmoid(self.L2N1w1 * h1 + self.L2N1w2 * h2 + self.L2N1w3 * h3 + self.L2N1b)
         return o1
 
         # out_h1 = self.h1.feedforward(x)
@@ -71,59 +77,73 @@ class OurNeuralNetwork:
 
     def train(self, data, all_y_trues):
         learn_rate = 0.1
-        epochs = 1000  # number of times to loop through the entire dataset
+        epochs = 2000  # number of times to loop through the entire dataset
         pic_x = []
         pic_y = []
         for epoch in range(epochs):
             for x, y_true in zip(data, all_y_trues):
                 # --- Do a feedforward (we'll need these values later)
-                sum_h1 = self.w1 * x[0] + self.w2 * x[1] + self.b1
+                sum_h1 = self.L1N1w1 * x[0] + self.L1N1w2 * x[1] + self.L1N1b
                 h1 = sigmoid(sum_h1)
 
-                sum_h2 = self.w3 * x[0] + self.w4 * x[1] + self.b2
+                sum_h2 = self.L1N2w1 * x[0] + self.L1N2w2 * x[1] + self.L1N2b
                 h2 = sigmoid(sum_h2)
 
-                sum_o1 = self.w5 * h1 + self.w6 * h2 + self.b3
+                sum_h3 = self.L1N3w1 * x[2] + self.L1N3b
+                h3 = sigmoid(sum_h3)
+
+                sum_o1 = self.L2N1w1 * h1 + self.L2N1w2 * h2 + self.L2N1w3 * h3 + self.L2N1b
                 o1 = sigmoid(sum_o1)
                 y_pred = o1
 
                 # --- Calculate partial derivatives.
-                # --- Naming: d_L_d_w1 represents "partial L / partial w1"
+                # --- Naming: d_L_d_L1N1w1 represents "partial L / partial w1"
                 d_L_d_ypred = -2 * (y_true - y_pred)
 
                 # Neuron o1
-                d_ypred_d_w5 = h1 * deriv_sigmoid(sum_o1)
-                d_ypred_d_w6 = h2 * deriv_sigmoid(sum_o1)
-                d_ypred_d_b3 = deriv_sigmoid(sum_o1)
+                d_ypred_d_L2N1w1 = h1 * deriv_sigmoid(sum_o1)
+                d_ypred_d_L2N1w2 = h2 * deriv_sigmoid(sum_o1)
+                d_ypred_d_L2N1w3 = h3 * deriv_sigmoid(sum_o1)
+                d_ypred_d_L2N1b = deriv_sigmoid(sum_o1)
 
-                d_ypred_d_h1 = self.w5 * deriv_sigmoid(sum_o1)
-                d_ypred_d_h2 = self.w6 * deriv_sigmoid(sum_o1)
+                d_ypred_d_h1 = self.L2N1w1 * deriv_sigmoid(sum_o1)
+                d_ypred_d_h2 = self.L2N1w2 * deriv_sigmoid(sum_o1)
+                d_ypred_d_h3 = self.L2N1w3 * deriv_sigmoid(sum_o1)
 
                 # Neuron h1
-                d_h1_d_w1 = x[0] * deriv_sigmoid(sum_h1)
-                d_h1_d_w2 = x[1] * deriv_sigmoid(sum_h1)
-                d_h1_d_b1 = deriv_sigmoid(sum_h1)
+                d_h1_d_L1N1w1 = x[0] * deriv_sigmoid(sum_h1)
+                d_h1_d_L1N1w2 = x[1] * deriv_sigmoid(sum_h1)
+                d_h1_d_L1N1b = deriv_sigmoid(sum_h1)
 
                 # Neuron h2
-                d_h2_d_w3 = x[0] * deriv_sigmoid(sum_h2)
-                d_h2_d_w4 = x[1] * deriv_sigmoid(sum_h2)
-                d_h2_d_b2 = deriv_sigmoid(sum_h2)
+                d_h2_d_L1N2w1 = x[0] * deriv_sigmoid(sum_h2)
+                d_h2_d_L1N2w2 = x[1] * deriv_sigmoid(sum_h2)
+                d_h2_d_L1N2b = deriv_sigmoid(sum_h2)
+
+                # Neuron h3
+                d_h3_d_L1N3w1 = x[2] * deriv_sigmoid(sum_h3)
+                d_h3_d_L1N3b = deriv_sigmoid(sum_h3)
 
                 # --- Update weights and biases
                 # Neuron h1
-                self.w1 -= learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_w1
-                self.w2 -= learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_w2
-                self.b1 -= learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_b1
+                self.L1N1w1 -= learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_L1N1w1
+                self.L1N1w2 -= learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_L1N1w2
+                self.L1N1b -= learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_L1N1b
 
                 # Neuron h2
-                self.w3 -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_w3
-                self.w4 -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_w4
-                self.b2 -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_b2
+                self.L1N2w1 -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_L1N2w1
+                self.L1N2w2 -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_L1N2w2
+                self.L1N2b -= learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_L1N2b
+
+                # Neuron h3
+                self.L1N3w1 -= learn_rate * d_L_d_ypred * d_ypred_d_h3 * d_h3_d_L1N3w1
+                self.L1N3b -= learn_rate * d_L_d_ypred * d_ypred_d_h3 * d_h3_d_L1N3b
 
                 # Neuron o1
-                self.w5 -= learn_rate * d_L_d_ypred * d_ypred_d_w5
-                self.w6 -= learn_rate * d_L_d_ypred * d_ypred_d_w6
-                self.b3 -= learn_rate * d_L_d_ypred * d_ypred_d_b3
+                self.L2N1w1 -= learn_rate * d_L_d_ypred * d_ypred_d_L2N1w1
+                self.L2N1w2 -= learn_rate * d_L_d_ypred * d_ypred_d_L2N1w2
+                self.L2N1w3 -= learn_rate * d_L_d_ypred * d_ypred_d_L2N1w3
+                self.L2N1b -= learn_rate * d_L_d_ypred * d_ypred_d_L2N1b
 
             # --- Calculate total loss at the end of each epoch
             if epoch % 10 == 0:
